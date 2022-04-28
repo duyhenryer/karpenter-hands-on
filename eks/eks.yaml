@@ -1,0 +1,89 @@
+# cluster.yaml
+# A cluster with an unmanaged nodegroup and two managed nodegroups.
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: demo
+  region: ap-southeast-1
+  version: "1.21"
+  tags: 
+    demo/env: demo
+    karpenter.sh/discovery: demo
+
+vpc:
+  subnets:
+    public:
+      ap-southeast-1a: { id: subnet-xxx }
+      ap-southeast-1b: { id: subnet-xxx }
+      ap-southeast-1c: { id: subnet-xxx }
+    private:
+      ap-southeast-1a: { id: subnet-xxx }
+      ap-southeast-1b: { id: subnet-xxx }
+      ap-southeast-1c: { id: subnet-xxx }
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: false
+
+addons:
+- name: vpc-cni 
+  version: latest
+  attachPolicyARNs:
+    - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+- name: coredns
+  version: latest 
+- name: kube-proxy
+  version: latest
+
+iam:
+  withOIDC: true
+managedNodeGroups:
+  - name: mn-demo
+    minSize: 1
+    maxSize: 5
+    desiredCapacity: 1
+    instanceTypes:
+      - m5.xlarge
+      - m5a.xlarge
+      - m5n.xlarge
+      - m5zn.xlarge
+      - t3.xlarge
+      - t3a.xlarge
+      - c5.2xlarge
+      - c5a.2xlarge
+    # instancePrefix: 
+    maxPodsPerNode: 110
+    volumeSize: 39
+    volumeIOPS: 3000
+    volumeType: gp3
+    volumeEncrypted: true
+    privateNetworking: true
+    disableIMDSv1: true
+    spot: true
+    # ssh:
+    #   publicKeyName: duydv
+    labels: 
+      demo/env: "demo"
+    tags:
+      demo/env: "demo"
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/demo-io: "owned"
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+      withAddonPolicies:
+        autoScaler: false
+        albIngress: false
+        appMesh: false
+        appMeshPreview: false
+        certManager: false
+        cloudWatch: false
+        ebs: true
+        efs: true
+        externalDNS: false
+        fsx: false
+        imageBuilder: true
+        xRay: false

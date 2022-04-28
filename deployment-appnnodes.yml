@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appnodes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appnodes
+  template:
+    metadata:
+      labels:
+        app: appnodes
+    spec:
+      terminationGracePeriodSeconds: 0
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: deployment
+                    operator: In
+                    values:
+                      - appnodes
+      tolerations:
+        - effect: NoSchedule
+          key: dedicated
+          operator: Equal
+          value: appnodes
+      containers:
+        - name: appnodes
+          image: public.ecr.aws/eks-distro/kubernetes/pause:3.2
+          resources:
+            requests:
+              cpu: 1

@@ -1,0 +1,22 @@
+
+serviceAccount:
+  # -- Specifies if a ServiceAccount should be created.
+  create: true
+  # -- The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: ""
+  # -- Additional annotations for the ServiceAccount.
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ID_ID:role/demo-karpenter
+
+# # -- Cluster name.
+clusterName: demo
+# # -- Cluster endpoint.
+clusterEndpoint: https://ID_ENDPOINT.gr7.ap-southeast-1.eks.amazonaws.com
+
+# export CLUSTER_NAME=demo
+# export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output text)"
+
+aws:
+  # -- The default instance profile to use when launching nodes on AWS
+  defaultInstanceProfile: KarpenterNodeInstanceProfile-demo

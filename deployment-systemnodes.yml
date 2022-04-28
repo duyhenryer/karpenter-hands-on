@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: systemnodes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: systemnodes
+  template:
+    metadata:
+      labels:
+        app: systemnodes
+    spec:
+      terminationGracePeriodSeconds: 0
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: deployment
+                    operator: In
+                    values:
+                      - systemnodes
+      tolerations:
+        - effect: NoSchedule
+          key: dedicated
+          operator: Equal
+          value: systemnodes
+      containers:
+        - name: systemnodes
+          image: public.ecr.aws/eks-distro/kubernetes/pause:3.2
+          resources:
+            requests:
+              cpu: 1
